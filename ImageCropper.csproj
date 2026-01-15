@@ -5,11 +5,21 @@
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
     <StartupObject>ImageCropper.Program</StartupObject>
     <ApplicationIcon>image.ico</ApplicationIcon>
     <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</SourceRevisionId>
+    <NeutralLanguage>de-DE</NeutralLanguage>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <NoWarn>1701;1702;SYSLIB1054</NoWarn>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <NoWarn>1701;1702;SYSLIB1054</NoWarn>
 </PropertyGroup>
 
   <ItemGroup>
@@ -17,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Magick.NET-Q8-x64" Version="14.10.0" />
-    <PackageReference Include="Magick.NET.SystemDrawing" Version="8.0.13" />
+    <PackageReference Include="Magick.NET-Q8-x64" Version="14.10.1" />
+    <PackageReference Include="Magick.NET.SystemDrawing" Version="8.0.14" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +44,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ImageCropper_Hilfe.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

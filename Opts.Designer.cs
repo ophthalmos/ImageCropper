@@ -51,10 +51,15 @@
             lblCloseOption = new Label();
             cbxCloseOption = new CheckBox();
             panel = new Panel();
+            gbxStandard = new GroupBox();
+            btnFileBrowser = new Button();
+            tbxImageEditor = new TextBox();
             gbxRatio.SuspendLayout();
             gbxTargetWidth.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDown).BeginInit();
             gbxCloseOption.SuspendLayout();
+            panel.SuspendLayout();
+            gbxStandard.SuspendLayout();
             SuspendLayout();
             // 
             // gbxRatio
@@ -146,7 +151,7 @@
             // btnJPEGDefault
             // 
             btnJPEGDefault.FlatAppearance.BorderColor = SystemColors.ControlDark;
-            btnJPEGDefault.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, SystemColors.Highlight);
+            btnJPEGDefault.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, 0, 120, 215);
             btnJPEGDefault.FlatAppearance.MouseOverBackColor = SystemColors.GradientActiveCaption;
             btnJPEGDefault.FlatStyle = FlatStyle.Flat;
             btnJPEGDefault.Location = new Point(185, 118);
@@ -160,7 +165,7 @@
             // btnWidthDefault
             // 
             btnWidthDefault.FlatAppearance.BorderColor = SystemColors.ControlDark;
-            btnWidthDefault.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, SystemColors.Highlight);
+            btnWidthDefault.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, 0, 120, 215);
             btnWidthDefault.FlatAppearance.MouseOverBackColor = SystemColors.GradientActiveCaption;
             btnWidthDefault.FlatStyle = FlatStyle.Flat;
             btnWidthDefault.Location = new Point(185, 24);
@@ -174,7 +179,7 @@
             // btnNameDefault
             // 
             btnNameDefault.FlatAppearance.BorderColor = SystemColors.ControlDark;
-            btnNameDefault.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, SystemColors.Highlight);
+            btnNameDefault.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, 0, 120, 215);
             btnNameDefault.FlatAppearance.MouseOverBackColor = SystemColors.GradientActiveCaption;
             btnNameDefault.FlatStyle = FlatStyle.Flat;
             btnNameDefault.Location = new Point(185, 55);
@@ -188,7 +193,7 @@
             // btnFolderBrowser
             // 
             btnFolderBrowser.FlatAppearance.BorderColor = SystemColors.ControlDark;
-            btnFolderBrowser.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, SystemColors.Highlight);
+            btnFolderBrowser.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, 0, 120, 215);
             btnFolderBrowser.FlatAppearance.MouseOverBackColor = SystemColors.GradientActiveCaption;
             btnFolderBrowser.FlatStyle = FlatStyle.Flat;
             btnFolderBrowser.Location = new Point(185, 86);
@@ -275,7 +280,7 @@
             // btnSave
             // 
             btnSave.DialogResult = DialogResult.OK;
-            btnSave.Location = new Point(8, 317);
+            btnSave.Location = new Point(12, 378);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(107, 27);
             btnSave.TabIndex = 2;
@@ -286,7 +291,7 @@
             // btnCancel
             // 
             btnCancel.DialogResult = DialogResult.Cancel;
-            btnCancel.Location = new Point(125, 317);
+            btnCancel.Location = new Point(125, 378);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(105, 27);
             btnCancel.TabIndex = 3;
@@ -312,9 +317,9 @@
             lblCloseOption.Font = new Font("Segoe UI", 10F);
             lblCloseOption.Location = new Point(6, 50);
             lblCloseOption.Name = "lblCloseOption";
-            lblCloseOption.Size = new Size(202, 19);
+            lblCloseOption.Size = new Size(205, 19);
             lblCloseOption.TabIndex = 1;
-            lblCloseOption.Text = "Andernfalls nur Dialog beenden";
+            lblCloseOption.Text = "Andernfalls nur Dialog schließen";
             // 
             // cbxCloseOption
             // 
@@ -333,11 +338,47 @@
             // 
             panel.BackColor = SystemColors.ControlLightLight;
             panel.BorderStyle = BorderStyle.FixedSingle;
+            panel.Controls.Add(gbxStandard);
             panel.Dock = DockStyle.Top;
             panel.Location = new Point(0, 0);
             panel.Name = "panel";
-            panel.Size = new Size(240, 311);
+            panel.Size = new Size(240, 372);
             panel.TabIndex = 9;
+            // 
+            // gbxStandard
+            // 
+            gbxStandard.Controls.Add(btnFileBrowser);
+            gbxStandard.Controls.Add(tbxImageEditor);
+            gbxStandard.Font = new Font("Segoe UI", 9F);
+            gbxStandard.Location = new Point(11, 310);
+            gbxStandard.Name = "gbxStandard";
+            gbxStandard.Size = new Size(218, 54);
+            gbxStandard.TabIndex = 0;
+            gbxStandard.TabStop = false;
+            gbxStandard.Text = "Bildbearbeitungsprogramm";
+            // 
+            // btnFileBrowser
+            // 
+            btnFileBrowser.FlatAppearance.BorderColor = SystemColors.ControlDark;
+            btnFileBrowser.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, 0, 120, 215);
+            btnFileBrowser.FlatAppearance.MouseOverBackColor = SystemColors.GradientActiveCaption;
+            btnFileBrowser.FlatStyle = FlatStyle.Flat;
+            btnFileBrowser.Location = new Point(185, 21);
+            btnFileBrowser.Name = "btnFileBrowser";
+            btnFileBrowser.Size = new Size(26, 25);
+            btnFileBrowser.TabIndex = 8;
+            btnFileBrowser.Text = "⚙";
+            btnFileBrowser.UseVisualStyleBackColor = true;
+            btnFileBrowser.Click += BtnFileBrowser_Click;
+            // 
+            // tbxImageEditor
+            // 
+            tbxImageEditor.Font = new Font("Segoe UI", 10F);
+            tbxImageEditor.Location = new Point(6, 21);
+            tbxImageEditor.Name = "tbxImageEditor";
+            tbxImageEditor.PlaceholderText = "Windows Photo App";
+            tbxImageEditor.Size = new Size(181, 25);
+            tbxImageEditor.TabIndex = 7;
             // 
             // Opts
             // 
@@ -345,7 +386,7 @@
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = btnCancel;
-            ClientSize = new Size(240, 356);
+            ClientSize = new Size(240, 417);
             ControlBox = false;
             Controls.Add(gbxCloseOption);
             Controls.Add(btnCancel);
@@ -368,6 +409,9 @@
             ((System.ComponentModel.ISupportInitialize)numericUpDown).EndInit();
             gbxCloseOption.ResumeLayout(false);
             gbxCloseOption.PerformLayout();
+            panel.ResumeLayout(false);
+            gbxStandard.ResumeLayout(false);
+            gbxStandard.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -396,5 +440,8 @@
         private Button btnJPEGDefault;
         private Button btnWidthDefault;
         private Button btnNameDefault;
+        private GroupBox gbxStandard;
+        private Button btnFileBrowser;
+        private TextBox tbxImageEditor;
     }
 }

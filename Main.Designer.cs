@@ -34,6 +34,8 @@
             openToolStripMenuItem = new ToolStripMenuItem();
             cropToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
+            settingsToolStripMenuItem = new ToolStripMenuItem();
+            standardToolStripMenuItem = new ToolStripMenuItem();
             statusStrip = new StatusStrip();
             toolStripStatusSize = new ToolStripStatusLabel();
             pictureBox = new PictureBox();
@@ -58,13 +60,14 @@
             // 
             menuStrip.Font = new Font("Segoe UI", 10F);
             menuStrip.ImageScalingSize = new Size(24, 24);
-            menuStrip.Items.AddRange(new ToolStripItem[] { openToolStripMenuItem, cropToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip.Items.AddRange(new ToolStripItem[] { openToolStripMenuItem, cropToolStripMenuItem, helpToolStripMenuItem, settingsToolStripMenuItem, standardToolStripMenuItem });
             menuStrip.Location = new Point(0, 0);
             menuStrip.Name = "menuStrip";
             menuStrip.ShowItemToolTips = true;
-            menuStrip.Size = new Size(388, 32);
+            menuStrip.Size = new Size(460, 32);
             menuStrip.TabIndex = 0;
-            menuStrip.Text = "menuStrip1";
+            menuStrip.Text = "";
+            menuStrip.ClientSizeChanged += MenuStrip_ClientSizeChanged;
             // 
             // openToolStripMenuItem
             // 
@@ -95,24 +98,47 @@
             helpToolStripMenuItem.Image = Properties.Resources.Help_24x;
             helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             helpToolStripMenuItem.Size = new Size(36, 28);
-            helpToolStripMenuItem.Text = "?";
+            helpToolStripMenuItem.Text = "Hilfe";
             helpToolStripMenuItem.ToolTipText = "F1: About-Dialog\r\nF2: Einstellungen\r\nF3: Settings.xml";
             helpToolStripMenuItem.Click += HelpToolStripMenuItem_Click;
+            // 
+            // settingsToolStripMenuItem
+            // 
+            settingsToolStripMenuItem.Alignment = ToolStripItemAlignment.Right;
+            settingsToolStripMenuItem.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            settingsToolStripMenuItem.Image = Properties.Resources.settings_24;
+            settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            settingsToolStripMenuItem.Size = new Size(36, 28);
+            settingsToolStripMenuItem.Text = "Einstellungen";
+            settingsToolStripMenuItem.ToolTipText = "Einstellungen";
+            settingsToolStripMenuItem.Click += SettingsToolStripMenuItem_Click;
+            // 
+            // standardToolStripMenuItem
+            // 
+            standardToolStripMenuItem.Alignment = ToolStripItemAlignment.Right;
+            standardToolStripMenuItem.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            standardToolStripMenuItem.Enabled = false;
+            standardToolStripMenuItem.Image = Properties.Resources.picture_24;
+            standardToolStripMenuItem.Name = "standardToolStripMenuItem";
+            standardToolStripMenuItem.Size = new Size(36, 28);
+            standardToolStripMenuItem.Text = "Bildbearbeitung";
+            standardToolStripMenuItem.ToolTipText = "In Bildbearbeitungsprogramm laden";
+            standardToolStripMenuItem.Click += StandardToolStripMenuItem_Click;
             // 
             // statusStrip
             // 
             statusStrip.Font = new Font("Segoe UI", 10F);
             statusStrip.GripStyle = ToolStripGripStyle.Visible;
             statusStrip.Items.AddRange(new ToolStripItem[] { toolStripStatusSize });
-            statusStrip.Location = new Point(0, 420);
+            statusStrip.Location = new Point(0, 492);
             statusStrip.Name = "statusStrip";
-            statusStrip.Size = new Size(388, 22);
+            statusStrip.Size = new Size(460, 22);
             statusStrip.TabIndex = 1;
             // 
             // toolStripStatusSize
             // 
             toolStripStatusSize.Name = "toolStripStatusSize";
-            toolStripStatusSize.Size = new Size(373, 17);
+            toolStripStatusSize.Size = new Size(445, 17);
             toolStripStatusSize.Spring = true;
             // 
             // pictureBox
@@ -123,7 +149,7 @@
             pictureBox.Dock = DockStyle.Fill;
             pictureBox.Location = new Point(0, 32);
             pictureBox.Name = "pictureBox";
-            pictureBox.Size = new Size(388, 388);
+            pictureBox.Size = new Size(460, 460);
             pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox.TabIndex = 2;
             pictureBox.TabStop = false;
@@ -221,14 +247,15 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(388, 442);
+            ClientSize = new Size(460, 514);
             Controls.Add(pictureBox);
             Controls.Add(statusStrip);
             Controls.Add(menuStrip);
+            DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
             KeyPreview = true;
             MainMenuStrip = menuStrip;
-            MinimumSize = new Size(404, 300);
+            MinimumSize = new Size(476, 300);
             Name = "Main";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "ImageCropper";
@@ -266,5 +293,7 @@
         private ToolStripMenuItem ratioFreeToolStripMenuItem;
         private ToolTip toolTip;
         private ToolStripMenuItem clipContextMenuItem;
+        private ToolStripMenuItem settingsToolStripMenuItem;
+        private ToolStripMenuItem standardToolStripMenuItem;
     }
 }
