@@ -1,1 +1,2 @@
 # ImageCropper
+![Screenshot](ImageCropper.png)

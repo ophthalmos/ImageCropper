@@ -11,6 +11,7 @@ ArchitecturesAllowed=x64os
 ArchitecturesInstallIn64BitMode=x64os
 PrivilegesRequired=none
 PrivilegesRequiredOverridesAllowed=dialog
+; UsePreviousPrivileges (standardmäßig yes) sorgt dafür, dass für ein Update dieselben Rechte wie bei der Erstinstallation angefordert werden.
 DefaultDirName={autopf}\{#MyAppName}
 AppPublisher=Wilhelm Happe
 VersionInfoCopyright=(C) 2026, W. Happe
@@ -99,12 +100,12 @@ begin
   case CurUninstallStep of                   
     usPostUninstall:
       begin
-        mres := MsgBox(CustomMessage('RemoveSettings'), mbConfirmation, MB_YESNO or MB_DEFBUTTON2)
+        mres := MsgBox(CustomMessage('RemoveSettings'), mbConfirmation, MB_YESNO or MB_DEFBUTTON2);
         if mres = IDYES then
-          begin
+        begin
           DelTree(ExpandConstant('{userappdata}\{#MyAppName}'), True, True, True);
           RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, 'Software\{#MyAppName}');
-          end;
+        end;
       end;
   end;
 end; 
