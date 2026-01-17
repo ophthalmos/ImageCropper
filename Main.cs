@@ -196,7 +196,10 @@ public partial class Main : Form
         ratio1to1ToolStripMenuItem.Checked = false;
         ratio2to3ToolStripMenuItem.Checked = false;
         ratio3to4ToolStripMenuItem.Checked = false;
-        if (ratio <= 0) ratioFreeToolStripMenuItem.Checked = true;
+        if (ratio <= 0)
+        {
+            ratioFreeToolStripMenuItem.Checked = true;
+        }
         else if (Math.Abs(ratio - 1.0f) < 0.01) { ratio1to1ToolStripMenuItem.Checked = true; }
         else if (Math.Abs(ratio - (2f / 3f)) < 0.01) { ratio2to3ToolStripMenuItem.Checked = true; }
         else if (Math.Abs(ratio - (3f / 4f)) < 0.01) { ratio3to4ToolStripMenuItem.Checked = true; }
@@ -229,32 +232,59 @@ public partial class Main : Form
         if (rect.Bottom > pictureBox.Height) { rect.Height = pictureBox.Height - rect.Y; }
     }
 
+    private Rectangle GetImageRectangle()
+    {
+        if (pictureBox.Image == null) { return Rectangle.Empty; }
+        var imgSize = pictureBox.Image.Size;
+        var ctrlSize = pictureBox.ClientSize; // Wichtig: ClientSize wegen Fixed3D-Rahmen
+        var ratioImg = (float)imgSize.Width / imgSize.Height;
+        var ratioCtrl = (float)ctrlSize.Width / ctrlSize.Height;
+        var x = 0;
+        var y = 0;
+        var w = ctrlSize.Width;
+        var h = ctrlSize.Height;
+        if (ratioImg > ratioCtrl) // Bild ist breiter als Box (Balken oben/unten)
+        {
+            h = (int)(w / ratioImg);
+            y = (ctrlSize.Height - h) / 2;
+        }
+        else // Bild ist höher als Box (Balken links/rechts)
+        {
+            w = (int)(h * ratioImg);
+            x = (ctrlSize.Width - w) / 2;
+        }
+        return new Rectangle(x, y, w, h);
+    }
+
     private void PictureBox_MouseDown(object? sender, MouseEventArgs e)
     {
-        if (pictureBox.Image == null || e.Button != MouseButtons.Left) return;
-        _mouseDownPoint = e.Location;
+        if (pictureBox.Image == null || e.Button != MouseButtons.Left) { return; }
+        var validRect = GetImageRectangle(); // Gültiger Bereich des Bildes in der PictureBox
+        var clampedPoint = new Point(Math.Clamp(e.X, validRect.Left, validRect.Right), Math.Clamp(e.Y, validRect.Top, validRect.Bottom));
+        _mouseDownPoint = clampedPoint; // Klickpunkt liegt jetzt innerhalb des Bildbereichs, auch wenn Original-Mausposition außerhalb war
         _currentDragHandle = HitTest(e.Location);
-        if (_currentDragHandle != DragHandle.None)  // Wir haben einen Griff oder das Innere getroffen
+        if (_currentDragHandle != DragHandle.None)
         {
             _isDragging = true;
-            _dragStartPoint = e.Location;
+            _dragStartPoint = e.Location; // Hier Original-Location lassen für flüssiges Delta
             _isNewSelection = false;
         }
-        else // Klick außerhalb der Auswahl: Auswahl sofort aufheben
+        else
         {
             _selectionRect = Rectangle.Empty;
             _isNewSelection = true;
             _isDragging = false;
-            pictureBox.Invalidate(); // Zeichnet das Bild ohne Rahmen neu
+            pictureBox.Invalidate();
         }
     }
 
     private void PictureBox_MouseMove(object? sender, MouseEventArgs e)
     {
         if (pictureBox.Image == null) { return; }
+        var validRect = GetImageRectangle();
         if (!_isDragging && _isNewSelection && e.Button == MouseButtons.Left)
         {
-            if (Math.Abs(e.X - _mouseDownPoint.X) > SystemInformation.DragSize.Width || Math.Abs(e.Y - _mouseDownPoint.Y) > SystemInformation.DragSize.Height) // Mindestbewegung prüfen
+            if (Math.Abs(e.X - _mouseDownPoint.X) > SystemInformation.DragSize.Width || Math.Abs(e.Y - _mouseDownPoint.Y) > SystemInformation.DragSize.Height) // _mouseDownPoint ist bereits korrigiert
             {
                 _isDragging = true;
                 _selectionRect = new Rectangle(_mouseDownPoint, new Size(0, 0));
@@ -268,45 +298,52 @@ public partial class Main : Form
             SetCursor(HitTest(e.Location));
             return;
         }
-        var newRect = _selectionRect; // B) Das eigentliche Ziehen/Vergrößern
-        switch (_currentDragHandle) // Berechnung basierend darauf, welcher Griff gezogen wird
+        var x = Math.Clamp(e.X, validRect.Left, validRect.Right); // Clamping auf das Bildrechteck:
+        var y = Math.Clamp(e.Y, validRect.Top, validRect.Bottom); // Maus darf virtuell nicht den Bildbereich verlassen
+        var newRect = _selectionRect;
+        switch (_currentDragHandle)
         {
             case DragHandle.TopLeft:
-                newRect.X = e.X; newRect.Y = e.Y;
-                newRect.Width = _selectionRect.Right - e.X;
-                newRect.Height = _selectionRect.Bottom - e.Y;
+                newRect.X = x; newRect.Y = y;
+                newRect.Width = _selectionRect.Right - x;
+                newRect.Height = _selectionRect.Bottom - y;
                 break;
             case DragHandle.TopRight:
-                newRect.Y = e.Y;
-                newRect.Width = e.X - _selectionRect.X;
-                newRect.Height = _selectionRect.Bottom - e.Y;
+                newRect.Y = y;
+                newRect.Width = x - _selectionRect.X;
+                newRect.Height = _selectionRect.Bottom - y;
                 break;
             case DragHandle.BottomLeft:
-                newRect.X = e.X;
-                newRect.Width = _selectionRect.Right - e.X;
-                newRect.Height = e.Y - _selectionRect.Y;
+                newRect.X = x;
+                newRect.Width = _selectionRect.Right - x;
+                newRect.Height = y - _selectionRect.Y;
                 break;
             case DragHandle.BottomRight:
-                newRect.Width = e.X - _selectionRect.X;
-                newRect.Height = e.Y - _selectionRect.Y;
+                newRect.Width = x - _selectionRect.X;
+                newRect.Height = y - _selectionRect.Y;
                 break;
             case DragHandle.Top:
-                newRect.Y = e.Y; newRect.Height = _selectionRect.Bottom - e.Y; break;
+                newRect.Y = y; newRect.Height = _selectionRect.Bottom - y; break;
             case DragHandle.Bottom:
-                newRect.Height = e.Y - _selectionRect.Y; break;
+                newRect.Height = y - _selectionRect.Y; break;
             case DragHandle.Left:
-                newRect.X = e.X; newRect.Width = _selectionRect.Right - e.X; break;
+                newRect.X = x; newRect.Width = _selectionRect.Right - x; break;
             case DragHandle.Right:
-                newRect.Width = e.X - _selectionRect.X; break;
-            case DragHandle.Inside: // Verschieben der ganzen Box
+                newRect.Width = x - _selectionRect.X; break;
+            case DragHandle.Inside:
                 var dx = e.X - _dragStartPoint.X;
                 var dy = e.Y - _dragStartPoint.Y;
                 newRect.Offset(dx, dy);
-                _dragStartPoint = e.Location; // Reset für nächstes Delta
+                if (newRect.Left < validRect.Left) { newRect.X = validRect.Left; }
+                if (newRect.Top < validRect.Top) { newRect.Y = validRect.Top; }
+                if (newRect.Right > validRect.Right) { newRect.X = validRect.Right - newRect.Width; }
+                if (newRect.Bottom > validRect.Bottom) { newRect.Y = validRect.Bottom - newRect.Height; }
+                _dragStartPoint = e.Location;
                 break;
         }
-        if (_currentAspectRatio > 0 && _currentDragHandle != DragHandle.Inside) { ApplyAspectRatio(ref newRect, _currentDragHandle); } // Seitenverhältnis erzwingen
-        newRect = Util.NormalizeRectangle(newRect); // Normalisieren (falls Breite/Höhe negativ wurde durch Ziehen über die Gegenseite hinaus)
+        if (_currentAspectRatio > 0 && _currentDragHandle != DragHandle.Inside) { ApplyAspectRatio(ref newRect, _currentDragHandle); }
+        newRect = Util.NormalizeRectangle(newRect);
+        newRect.Intersect(validRect); // alles abschneiden, was außerhalb liegt
         if (newRect != _selectionRect)
         {
             _selectionRect = newRect;
@@ -329,12 +366,12 @@ public partial class Main : Form
         if (_isLoading)
         {
             var text = "Bitte warten…";
-            var scaledFontSize = 24f * DeviceDpi / 96f; // Schrift mit-skalieren
+            var scaledFontSize = 24f * DeviceDpi / 96f;
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             using Font font = new("Segoe UI", scaledFontSize);
-            var textSize = e.Graphics.MeasureString(text, font); // e.Graphics.MeasureString statt TextRenderer.MeasureText, genauer bei hohen DPI
-            var x = (pictureBox.Width - textSize.Width) / 2;
-            var y = (pictureBox.Height - textSize.Height) / 2;
+            var textSize = e.Graphics.MeasureString(text, font);
+            var x = (pictureBox.ClientSize.Width - textSize.Width) / 2;
+            var y = (pictureBox.ClientSize.Height - textSize.Height) / 2;
             e.Graphics.DrawString(text, font, Brushes.White, x, y);
         }
         else if (pictureBox.Image == null) { toolStripStatusSize.Text = ""; }
@@ -343,25 +380,28 @@ public partial class Main : Form
         {
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.None;
-            using (Brush shadowBrush = new SolidBrush(Color.FromArgb(120, Color.Black)))  // "Dunkle Maske" ohne Region-Objekt zeichnen
+            var w = pictureBox.ClientSize.Width;
+            var h = pictureBox.ClientSize.Height;
+            using (Brush shadowBrush = new SolidBrush(Color.FromArgb(120, Color.Black)))
             {
-                g.FillRectangle(shadowBrush, 0, 0, pictureBox.Width, _selectionRect.Y); // Oben
-                g.FillRectangle(shadowBrush, 0, _selectionRect.Bottom, pictureBox.Width, pictureBox.Height - _selectionRect.Bottom); // Unten
+                g.FillRectangle(shadowBrush, 0, 0, w, _selectionRect.Y); // Oben
+                g.FillRectangle(shadowBrush, 0, _selectionRect.Bottom, w, h - _selectionRect.Bottom); // Unten
                 g.FillRectangle(shadowBrush, 0, _selectionRect.Y, _selectionRect.X, _selectionRect.Height); // Links
-                g.FillRectangle(shadowBrush, _selectionRect.Right, _selectionRect.Y, pictureBox.Width - _selectionRect.Right, _selectionRect.Height); // Rechts 
+                g.FillRectangle(shadowBrush, _selectionRect.Right, _selectionRect.Y, w - _selectionRect.Right, _selectionRect.Height); // Rechts 
             }
-            using (Pen whitePen = new(Color.White, 1)) { g.DrawRectangle(whitePen, _selectionRect); }
+            var drawRect = new Rectangle(_selectionRect.X, _selectionRect.Y, _selectionRect.Width - 1, _selectionRect.Height - 1);
+            using (Pen whitePen = new(Color.White, 1)) { g.DrawRectangle(whitePen, drawRect); }
             using (Pen antPen = new(Color.Black, 1))
             {
                 antPen.DashStyle = DashStyle.Dash;
-                g.DrawRectangle(antPen, _selectionRect);
+                g.DrawRectangle(antPen, drawRect);
             }
             g.SmoothingMode = SmoothingMode.AntiAlias;
             DrawHandle(e.Graphics, DragHandle.TopLeft);
             DrawHandle(e.Graphics, DragHandle.TopRight);
             DrawHandle(e.Graphics, DragHandle.BottomLeft);
             DrawHandle(e.Graphics, DragHandle.BottomRight);
-            if (_currentAspectRatio <= 0)  // Diese Griffe nur zeichnen, wenn das Verhältnis frei ist
+            if (_currentAspectRatio <= 0)
             {
                 DrawHandle(e.Graphics, DragHandle.Top);
                 DrawHandle(e.Graphics, DragHandle.Bottom);
@@ -369,7 +409,25 @@ public partial class Main : Form
                 DrawHandle(e.Graphics, DragHandle.Right);
             }
             var realRect = Util.TranslateSelectionToImageCoordinates(_selectionRect, pictureBox);
-            toolStripStatusSize.Text = $"{realRect.Width}×{realRect.Height} ({_selectionRect.Width}×{_selectionRect.Height}) Px";
+            var targetWidth = realRect.Width;
+            var targetHeight = realRect.Height;
+            if (targetWidth > _targetWidth)
+            {
+                var ratio = (float)realRect.Height / realRect.Width;
+                targetWidth = _targetWidth;
+                targetHeight = (int)(targetWidth * ratio);
+            }
+            double zoomFactor = 0;
+            if (pictureBox.Image.Width > 0 && pictureBox.Image.Height > 0)
+            {
+                var widthRatio = (double)pictureBox.ClientSize.Width / pictureBox.Image.Width;
+                var heightRatio = (double)pictureBox.ClientSize.Height / pictureBox.Image.Height;
+                zoomFactor = Math.Min(widthRatio, heightRatio);
+                if (Math.Abs(zoomFactor - 1.0) < 0.011) { zoomFactor = 1.0; } // Snap-to-1, kleine Abweichungen ignorieren
+            }
+            var isZoom100 = zoomFactor == 1.0;
+            var monitorText = isZoom100 ? "" : $" Monitor {_selectionRect.Width}×{_selectionRect.Height},";
+            toolStripStatusSize.Text = $"Original {realRect.Width}×{realRect.Height},{monitorText} Ziel {targetWidth}×{targetHeight} Px, Zoom {zoomFactor:0%}";
         }
     }
 
@@ -503,18 +561,34 @@ public partial class Main : Form
             if (sourceRect.Width <= 0 || sourceRect.Height <= 0) { throw new Exception("Auswahl ist ungültig."); }
             var targetWidth = sourceRect.Width; // Zielgröße berechnen (Skalierung auf max 320px Breite)
             var targetHeight = sourceRect.Height;
+            var isScaling = false;
             if (targetWidth > _targetWidth)
             {
                 var ratio = (float)sourceRect.Height / sourceRect.Width;
                 targetWidth = _targetWidth;
                 targetHeight = (int)(targetWidth * ratio);
+                isScaling = true;
             }
             Bitmap croppedImage = new(targetWidth, targetHeight);
+
+            croppedImage.SetResolution(originalImage.HorizontalResolution, originalImage.VerticalResolution);
+
             using (var g = Graphics.FromImage(croppedImage))
             {
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.SmoothingMode = SmoothingMode.HighQuality;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                if (isScaling)
+                {
+                    // Hohe Qualität beim Verkleinern
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.SmoothingMode = SmoothingMode.HighQuality;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                }
+                else
+                {
+                    // Pixel-perfekte Kopie beim reinen Ausschneiden (verhindert Weichzeichnen)
+                    g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    g.SmoothingMode = SmoothingMode.None;
+                    g.PixelOffsetMode = PixelOffsetMode.None;
+                }
                 g.DrawImage(originalImage, new Rectangle(0, 0, targetWidth, targetHeight), sourceRect, GraphicsUnit.Pixel); // Quelle -> Ziel (0, 0, targetWidth, targetHeight)
             }
             var savePath = Path.Combine(_saveDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop), _saveImageName + ".jpg");
@@ -522,10 +596,9 @@ public partial class Main : Form
             if (jpgEncoder == null) { croppedImage.Save(savePath, ImageFormat.Jpeg); }
             else
             {
-                EncoderParameters myEncoderParameters = new(1);
+                using EncoderParameters myEncoderParameters = new(1);
                 myEncoderParameters.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, _jpegQuality);
                 croppedImage.Save(savePath, jpgEncoder, myEncoderParameters);
-                myEncoderParameters.Dispose(); // EncoderParameter freigeben
             }
             var savedToClipboard = true;
             try { Clipboard.SetDataObject(savePath, true, 5, 10); }
@@ -936,4 +1009,8 @@ public partial class Main : Form
             : (settingsToolStripMenuItem.DisplayStyle = helpToolStripMenuItem.DisplayStyle = ToolStripItemDisplayStyle.Image);
     }
 
+    private void PictureBox_SizeChanged(object sender, EventArgs e)
+    {
+        if (!_selectionRect.IsEmpty && !pictureBox.ClientRectangle.Contains(_selectionRect)) { CancelSelection(); }
+    }
 }

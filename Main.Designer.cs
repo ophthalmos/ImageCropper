@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
+            var resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             menuStrip = new MenuStrip();
             openToolStripMenuItem = new ToolStripMenuItem();
             cropToolStripMenuItem = new ToolStripMenuItem();
@@ -66,7 +66,6 @@
             menuStrip.ShowItemToolTips = true;
             menuStrip.Size = new Size(460, 32);
             menuStrip.TabIndex = 0;
-            menuStrip.Text = "";
             menuStrip.ClientSizeChanged += MenuStrip_ClientSizeChanged;
             // 
             // openToolStripMenuItem
@@ -144,7 +143,6 @@
             // pictureBox
             // 
             pictureBox.BackColor = SystemColors.ControlDark;
-            pictureBox.BorderStyle = BorderStyle.Fixed3D;
             pictureBox.ContextMenuStrip = contextMenuStrip;
             pictureBox.Dock = DockStyle.Fill;
             pictureBox.Location = new Point(0, 32);
@@ -153,6 +151,7 @@
             pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox.TabIndex = 2;
             pictureBox.TabStop = false;
+            pictureBox.SizeChanged += PictureBox_SizeChanged;
             pictureBox.Paint += PictureBox_Paint;
             pictureBox.MouseDown += PictureBox_MouseDown;
             pictureBox.MouseMove += PictureBox_MouseMove;
